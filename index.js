@@ -15,7 +15,7 @@ async function main() {
 
     if (labels.length === 0 && names.length === 0) {
         console.error("Need to specify at least one name (-n) or label (-l) to filter on. see --help");
-        return 1;
+        process.exit(1);
     }
 
     console.error("[ktail] Matching all of labels: " + labels);
