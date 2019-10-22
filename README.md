@@ -5,8 +5,6 @@ Tail kubernetes logs from service scaling up, upgrading, restarting, etc. In sho
 
 # Usage
 
-### Print help
-
 ```
 ╰─>$ ktail --help
 ktail [options]
