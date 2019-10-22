@@ -1,0 +1,29 @@
+{
+  "name": "ktail",
+  "version": "1.0.0",
+  "description": "Tail logs from kubernetes based on pod names and/or labels. Keeps up with rolling updates, pod restarts, scaling up/down etc.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "ktail": "./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gigurra/ktail.git"
+  },
+  "keywords": [
+    "kubernetes",
+    "logging"
+  ],
+  "author": "Johan Kjölhede",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gigurra/ktail/issues"
+  },
+  "homepage": "https://github.com/gigurra/ktail#readme",
+  "dependencies": {
+    "yargs": "^14.2.0"
+  }
+}
