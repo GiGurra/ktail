@@ -10,19 +10,25 @@ async function main() {
 
     const labels = cmdLine.label || [];
     const names = cmdLine.name || [];
-    const maxPods = cmdLine.maxPods;
-    const maxReadBack = cmdLine.maxReadBack;
+    const maxPods = cmdLine['max-pods'];
+    const maxReadBack = cmdLine['tail'];
+    const pollInterval = cmdLine['interval'];
+    const readSinceRel = cmdLine['since'];
+    const readSinceAbs = cmdLine['since-time'];
 
     if (labels.length === 0 && names.length === 0) {
         console.error("Need to specify at least one name (-n) or label (-l) to filter on. see --help");
         process.exit(1);
     }
 
-    console.error("[ktail] Matching all of labels: " + labels);
-    console.error("[ktail] Matching any of names: " + names);
-    console.error("[ktail] Max allowed pods: " + maxPods);
-    console.error("[ktail] Max previous lines to read back: " + maxReadBack);
+    if (readSinceRel && readSinceAbs) {
+        console.error("Cannot specify both readSinceRel and readSinceAbs command line options. see --help");
+        process.exit(1);
+    }
 
+    const kubectlSinceArgs = getKubectlSinceArgs(readSinceRel, readSinceAbs);
+
+    // Keep track of monitored pods here
     const monitoredPods = {};
 
     // noinspection InfiniteLoopJS
@@ -46,33 +52,58 @@ async function main() {
                 }
 
                 try {
+
                     // Try fetching some lines of logs to see if commands can be executed against this pod/if it is ready
                     childProc.execSync("kubectl logs --tail=1 " + pod, {stdio: 'ignore'});
+
+                    // Some user feedback :S
                     console.error("[ktail] Tailing logs to pod " + pod);
-                    const podLogProc = childProc.spawn("kubectl", ["logs", "--tail=" + maxReadBack, "-f", pod], {stdio: ['ignore', 'pipe', 'pipe']});
+
+                    // Spawn kubectl process for tailing single pod logs
+                    const podLogProc = childProc.spawn(
+                        "kubectl", ["logs", "--tail", maxReadBack, "-f", pod].concat(kubectlSinceArgs),
+                        {stdio: ['ignore', 'pipe', 'pipe']}
+                    );
                     monitoredPods[pod] = podLogProc;
+
+                    // Pipe both stderr and stdout from kubectl to stdout
                     podLogProc.stdout.on('data', data => {
-                        formatOutput(pod, data, console.log, "stdout");
+                        format(pod, data, console.log, "stdout");
                     });
                     podLogProc.stderr.on('data', data => {
-                        formatOutput(pod, data, console.log, "stderr");
+                        format(pod, data, console.log, "stderr");
                     });
+
+                    // Add exit hook which removes stopped kubectl processes from monitoredPods
                     podLogProc.on('exit', code => {
                         console.error("[ktail] Stopped listening to " + pod + " due to code " + code);
                         delete monitoredPods[pod];
                     });
+
                 } catch (error) {
                     console.error("[ktail] Unable to tail logs for " + pod + " - it may have just been shut down, or is not yet ready/up")
                 }
             }
         }
 
-        await new Promise(done => setTimeout(done, 250));
+        await new Promise(done => setTimeout(done, pollInterval));
     }
 
 }
 
-function formatOutput(pod, data, outFn, outName) {
+function getKubectlSinceArgs(readSinceRel, readSinceAbs) {
+    if (readSinceRel) {
+        return ["--since", readSinceRel];
+    }
+    else if (readSinceAbs) {
+        return ["--since-time", readSinceAbs];
+    }
+    else {
+        return [];
+    }
+}
+
+function format(pod, data, outFn, outName) {
     const lines = data.toString().split(/\r?\n/).map(l => l.replace(/\s+$/g, '')).filter(l => l.length > 0);
     for (const line of lines) {
         outFn("[" + pod + ":" + outName + "] " + line);
@@ -114,18 +145,30 @@ function parseCmdLine() {
                     description: 'filter by name (multiple: any of)',
                     type: 'array',
                 })
-                .option('maxPods', {
-                    alias: 'p',
+                .option('max-pods', {
                     description: 'maximum pods allowed',
                     type: 'number',
                     default: 10
                 })
-                .option('maxReadBack', {
-                    alias: 'r',
-                    description: 'maximum old lines to read back',
+                .option('interval', {
+                    description: 'poll interval for new pods (ms)',
+                    type: 'number',
+                    default: 250
+                })
+                .option('tail', {
+                    description: 'See kubectl --tail=..',
                     type: 'number',
                     default: 20
                 })
+                .option('since', {
+                    description: 'See kubectl --since',
+                    type: 'string',
+                })
+                .option('since-time', {
+                    description: 'See kubectl --since-time',
+                    type: 'string',
+                })
+                .strict()
         }).argv;
 }
 
