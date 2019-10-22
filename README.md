@@ -1,5 +1,5 @@
 # ktail
-Tail logs from kubernetes from. Supports workloads that change over time (scale up/down, restarting, etc). In short, what you would expect from kubectl logs, but what kubectl logs just wont let you do (kubectl logs --tail on stereoids).
+Tail logs from multiple kubernetes pods. Supports workloads that change over time (scale up/down, restarting, etc). In short, what you would expect from kubectl logs, but what kubectl logs just wont let you do (kubectl logs --tail on stereoids).
 
 * Uses kubectl with your current context/ns under the hood.
 
