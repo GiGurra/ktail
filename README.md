@@ -14,16 +14,20 @@ from pods go to stdout regardless of origin. All internal ktail logs go to std
 err.
 
 Options:
-  --help             Show help                                         [boolean]
-  --version          Show version number                               [boolean]
-  --label, -l        filter by label (multiple: all of)                  [array]
-  --name, -n         filter by name (multiple: any of)                   [array]
-  --maxPods, -p      maximum pods allowed                 [number] [default: 10]
-  --maxReadBack, -r  maximum old lines to read back       [number] [default: 20]
+  --help        Show help                                              [boolean]
+  --version     Show version number                                    [boolean]
+  --label, -l   filter by label (multiple: all of)                       [array]
+  --name, -n    filter by name (multiple: any of)                        [array]
+  --max-pods    maximum pods allowed                      [number] [default: 10]
+  --interval    poll interval for new pods (ms)          [number] [default: 250]
+  --tail        See kubectl --tail=..                     [number] [default: 20]
+  --since       See kubectl --since                                     [string]
+  --since-time  See kubectl --since-time                                [string]
 
 Examples:
   ktail -l category=backend -n test    Captures all logs from pods matching both
                                        labels 'category=backend' and pod names
                                        containing 'test'
+
 ```
 
