@@ -35,4 +35,4 @@ Examples:
 
 ## Warning
 
-Written in Node.js, which I am a beginner in. All advice on style and best practices in general very welcome!
+Written in Node.js, which I am a beginner in. All advice on style and best practices very welcome!
