@@ -28,6 +28,11 @@ Examples:
   ktail -l category=backend -n test    Captures all logs from pods matching both
                                        labels 'category=backend' and pod names
                                        containing 'test'
+                                       
+## Warning
+
+Written in Node.js, which I am a beginner in. All advice on style and best practices in general very welcome!
+
 
 ```
 
