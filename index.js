@@ -77,7 +77,9 @@ async function main() {
                     // Add exit hook which removes stopped kubectl processes from monitoredPods
                     podLogProc.on('exit', code => {
                         console.error("[ktail] Stopped listening to " + pod + " due to code " + code);
-                        delete monitoredPods[pod];
+                        if (code !== 0) { // keep this pod name in memory so we dont tail it over and over again if it finished OK
+                            delete monitoredPods[pod];
+                        }
                     });
 
                 } catch (error) {

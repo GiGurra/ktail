@@ -1,6 +1,6 @@
 {
   "name": "ktail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tail logs from kubernetes based on pod names and/or labels. Keeps up with rolling updates, pod restarts, scaling up/down etc.",
   "main": "index.js",
   "scripts": {
